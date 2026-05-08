@@ -1,0 +1,239 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PRISMA_ORM_DB")
+}
+
+model Customer {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  phone        String?
+  cpf          String?   @unique
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  addresses    Address[]
+  orders       Order[]
+  carts        Cart[]
+}
+
+model Address {
+  id          String   @id @default(uuid())
+  customerId  String
+  firstName   String
+  lastName    String
+  address1    String
+  address2    String?
+  city        String
+  province    String
+  postalCode  String
+  countryCode String
+  phone       String?
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+}
+
+model Admin {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         AdminRole @default(ADMIN)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Region {
+  id              String           @id @default(uuid())
+  name            String
+  currencyCode    String
+  countries       String[]
+  taxRate         Float            @default(0)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  shippingOptions ShippingOption[]
+  carts           Cart[]
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String
+  handle      String    @unique
+  description String?
+  parentId    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+}
+
+model Collection {
+  id          String    @id @default(uuid())
+  name        String
+  handle      String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+}
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Product {
+  id           String          @id @default(uuid())
+  title        String
+  handle       String          @unique
+  description  String?
+  status       ProductStatus   @default(DRAFT)
+  thumbnail    String?
+  categoryId   String?
+  collectionId String?
+  tags         String[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  category     Category?       @relation(fields: [categoryId], references: [id])
+  collection   Collection?     @relation(fields: [collectionId], references: [id])
+  variants     ProductVariant[]
+  images       ProductImage[]
+}
+
+model ProductVariant {
+  id             String      @id @default(uuid())
+  productId      String
+  title          String
+  sku            String?     @unique
+  price          Float
+  compareAtPrice Float?
+  inventory      Int         @default(0)
+  options        Json        @default("{}")
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  product        Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems      CartItem[]
+  orderItems     OrderItem[]
+}
+
+model ProductImage {
+  id        String   @id @default(uuid())
+  productId String
+  url       String
+  alt       String?
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+enum CartStatus {
+  ACTIVE
+  COMPLETED
+  ABANDONED
+}
+
+model Cart {
+  id                String     @id @default(uuid())
+  customerId        String?
+  email             String?
+  regionId          String
+  status            CartStatus @default(ACTIVE)
+  shippingAddressId String?
+  billingAddressId  String?
+  discountCode      String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  customer          Customer?  @relation(fields: [customerId], references: [id])
+  region            Region     @relation(fields: [regionId], references: [id])
+  items             CartItem[]
+}
+
+model CartItem {
+  id        String         @id @default(uuid())
+  cartId    String
+  variantId String
+  quantity  Int
+  unitPrice Float
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  cart      Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+}
+
+model ShippingOption {
+  id            String   @id @default(uuid())
+  name          String
+  regionId      String
+  price         Float
+  provider      String
+  estimatedDays Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  region        Region   @relation(fields: [regionId], references: [id])
+  orders        Order[]
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  AWAITING
+  CAPTURED
+  REFUNDED
+  CANCELLED
+}
+
+model Order {
+  id                String         @id @default(uuid())
+  customerId        String?
+  email             String
+  status            OrderStatus    @default(PENDING)
+  paymentStatus     PaymentStatus  @default(AWAITING)
+  total             Float
+  subtotal          Float
+  shippingTotal     Float
+  taxTotal          Float
+  discountTotal     Float          @default(0)
+  currencyCode      String
+  shippingAddressId String?
+  billingAddressId  String?
+  shippingOptionId  String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  customer          Customer?      @relation(fields: [customerId], references: [id])
+  shippingOption    ShippingOption? @relation(fields: [shippingOptionId], references: [id])
+  items             OrderItem[]
+}
+
+model OrderItem {
+  id           String         @id @default(uuid())
+  orderId      String
+  variantId    String
+  title        String
+  variantTitle String
+  thumbnail    String?
+  quantity     Int
+  unitPrice    Float
+  total        Float
+  createdAt    DateTime       @default(now())
+  order        Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variant      ProductVariant @relation(fields: [variantId], references: [id])
+}

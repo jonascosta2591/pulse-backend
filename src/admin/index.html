@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PULSE Admin</title>
+  <link rel="stylesheet" href="/admin-panel/style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen">
+      <div class="login-box">
+        <div class="login-logo">
+          <span class="logo-text">PULSE</span>
+          <span class="logo-sub">Admin Panel</span>
+        </div>
+        <form id="login-form">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="login-email" placeholder="admin@pulse.com" required />
+          </div>
+          <div class="form-group">
+            <label>Senha</label>
+            <input type="password" id="login-password" placeholder="••••••••" required />
+          </div>
+          <div id="login-error" class="error-msg hidden"></div>
+          <button type="submit" class="btn btn-primary btn-full" id="login-btn">
+            Entrar
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Dashboard Layout -->
+    <div id="dashboard-screen" class="screen hidden">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-logo">
+          <span class="logo-text">PULSE</span>
+        </div>
+        <nav class="sidebar-nav">
+          <a href="#" class="nav-item active" data-page="dashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Dashboard
+          </a>
+          <a href="#" class="nav-item" data-page="orders">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            Pedidos
+          </a>
+          <a href="#" class="nav-item" data-page="products">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+            Produtos
+          </a>
+          <a href="#" class="nav-item" data-page="customers">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            Clientes
+          </a>
+        </nav>
+        <div class="sidebar-footer">
+          <div class="admin-info">
+            <div class="admin-avatar" id="admin-avatar">A</div>
+            <div class="admin-details">
+              <span id="admin-name">Admin</span>
+              <span id="admin-role">ADMIN</span>
+            </div>
+          </div>
+          <button class="btn-logout" id="logout-btn" title="Sair">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <header class="topbar">
+          <h1 id="page-title">Dashboard</h1>
+          <div class="topbar-actions" id="topbar-actions"></div>
+        </header>
+
+        <div id="page-content" class="page-content">
+          <!-- Pages rendered here by JS -->
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/admin-panel/app.js"></script>
+</body>
+</html>
