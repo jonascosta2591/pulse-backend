@@ -28,23 +28,25 @@ app.use(helmet({
   contentSecurityPolicy: false, // disabled to allow inline scripts in admin panel
 }))
 
-// CORS
+// CORS — allow all origins
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Permite requisições sem origin (ex: painel servido pelo próprio backend)
-      if (!origin) return callback(null, true)
-      const allowed = [
-        process.env.STORE_CORS || 'http://localhost:3000',
-        process.env.ADMIN_CORS || 'http://localhost:3001',
-        `http://localhost:${process.env.PORT || 9000}`,
-      ]
-      if (allowed.includes(origin)) return callback(null, true)
-      callback(null, true) // permissivo em dev; troque por callback(new Error('Not allowed')) em prod
-    },
-    credentials: true,
+    origin: '*',
+    credentials: false, // credentials (cookies) cannot be used with origin: '*'
   })
 )
+
+// For routes that need cookies (auth), override CORS to allow the specific origin
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*')
+  res.header('Access-Control-Allow-Credentials', 'true')
+  res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS')
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204)
+  }
+  next()
+})
 
 // Body parsing
 app.use(express.json())
